@@ -170,7 +170,7 @@ export default function Register() {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    flexGrow: 1, // ← la clave
+    flexGrow: 1,
     justifyContent: "space-between",
     paddingHorizontal: espacio.xl,
     paddingVertical: espacio.xl,

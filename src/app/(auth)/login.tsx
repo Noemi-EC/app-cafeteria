@@ -6,6 +6,7 @@ import {
   radio,
   texto,
 } from "@/theme/tokens";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { Link, router } from "expo-router";
 import { useState } from "react";
 import {
@@ -24,6 +25,7 @@ import { rutaPorRol } from "../../auth/rutas";
 export default function Login() {
   const [contact, setContact] = useState("");
   const [password, setPassword] = useState("");
+  const [verPassword, setVerPassword] = useState(false); // Alterna el ocultado
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,15 +71,34 @@ export default function Login() {
               value={contact}
               onChangeText={setContact}
             />
-            <TextInput
-              style={styles.input}
-              placeholder="Contraseña"
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-              value={password}
-              onChangeText={setPassword}
-            />
+
+            {/* El borde lo lleva el contenedor; el campo y el botón van dentro */}
+            <View style={styles.campoPassword}>
+              <TextInput
+                style={styles.inputPassword}
+                placeholder="Contraseña"
+                secureTextEntry={!verPassword}
+                autoCapitalize="none"
+                autoCorrect={false}
+                value={password}
+                onChangeText={setPassword}
+              />
+              <Pressable
+                onPress={() => setVerPassword((v) => !v)}
+                style={styles.botonVer}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel={
+                  verPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                }
+              >
+                <Ionicons
+                  name={verPassword ? "eye-off-outline" : "eye-outline"}
+                  size={22}
+                  color={colores.suave}
+                />
+              </Pressable>
+            </View>
           </View>
 
           <Pressable
@@ -155,6 +176,28 @@ const styles = StyleSheet.create({
     borderColor: colores.borde,
     borderRadius: radio.sm,
     height: 55,
+  },
+  // Contenedor en fila: campo a la izquierda, botón "Mostrar" a la derecha
+  campoPassword: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: colores.borde,
+    borderRadius: radio.sm,
+    paddingHorizontal: espacio.md,
+    height: 55,
+  },
+  inputPassword: {
+    flex: 1, // ocupa todo el espacio que deje el botón
+    fontSize: texto.cuerpo,
+    paddingVertical: espacio.sm,
+    color: colores.espresso,
+  },
+  botonVer: {
+    paddingLeft: espacio.md,
+    minHeight: alturaMinimaTactil,
+    alignItems: "center",
+    justifyContent: "center",
   },
   button: {
     borderWidth: 1,
