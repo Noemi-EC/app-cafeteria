@@ -1,5 +1,6 @@
 import type { Rol } from "@/api/auth";
 import * as apiAuth from "@/api/auth";
+import { desconectarSocket } from "@/api/socket";
 import {
   borrarSesion,
   guardarSesion,
@@ -33,6 +34,9 @@ export const useSesion = create<EstadoSesion>((set) => ({
   },
 
   cerrarSesion: async () => {
+    // El socket quedó abierto con el token viejo: hay que cerrarlo,
+    // o seguiría recibiendo eventos de una sesión que ya no existe.
+    desconectarSocket();
     await borrarSesion();
     set({ token: null, rol: null });
   },
