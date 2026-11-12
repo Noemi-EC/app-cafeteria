@@ -13,6 +13,7 @@ import {
   texto,
 } from "@/theme/tokens";
 import { Picker } from "@react-native-picker/picker";
+import QRCode from "react-native-qrcode-svg";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -118,7 +119,17 @@ export default function Perfil() {
           <Text style={styles.etiqueta}>MI CÓDIGO</Text>
           {/* Es lo que el barista registra para sumar la visita.
               Más adelante, lo mismo viajará dentro de un QR. */}
-          <View style={[styles.campo, styles.campoBloqueado]}>
+          <View style={styles.bloqueQr}>
+            {perfil?.codigoQr ? (
+              <QRCode
+                value={perfil.codigoQr}
+                size={150}
+                color={colores.espresso}
+                backgroundColor={colores.blanco}
+              />
+            ) : null}
+            {/* El texto se queda debajo: mientras no exista el escáner,
+                es lo que el barista escribe para registrar la visita. */}
             <Text style={styles.textoCodigo}>{perfil?.codigoQr}</Text>
           </View>
           <Text style={styles.suave}>
@@ -208,10 +219,21 @@ const styles = StyleSheet.create({
     backgroundColor: colores.crema,
   },
   contenido: { padding: espacio.xl, gap: espacio.lg },
+  bloqueQr: {
+    alignItems: "center",
+    gap: espacio.md,
+    backgroundColor: colores.blanco,
+    borderWidth: 1,
+    borderColor: colores.borde,
+    borderRadius: radio.md,
+    paddingVertical: espacio.lg,
+    paddingHorizontal: espacio.md,
+  },
   textoCodigo: {
-    fontSize: texto.etiqueta,
-    color: colores.espresso,
+    fontSize: texto.pie,
+    color: colores.suave,
     letterSpacing: 0.5,
+    textAlign: "center",
   },
   flexible: { flex: 1 },
 
