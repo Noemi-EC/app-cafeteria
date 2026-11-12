@@ -9,6 +9,8 @@ export interface ClienteDelLocal {
   contacto: string | null;
   codigoQr: string;
   totalVisitas: number;
+  /** Fecha ISO de la última visita no anulada, o null si nunca vino. */
+  ultimaVisitaEn: string | null;
   productoFavorito: string | null;
   activo: boolean;
   nivel: string;

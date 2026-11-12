@@ -5,7 +5,7 @@ import {
   type ClienteDelLocal,
 } from "@/api/clientes";
 import { registrarVisita } from "@/api/visitas";
-import { useSesion } from "@/store/sesion";
+import { useEvento } from "@/hooks/useEvento";
 import {
   alturaMinimaTactil,
   colores,
@@ -13,7 +13,6 @@ import {
   radio,
   texto,
 } from "@/theme/tokens";
-import { router } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -27,10 +26,9 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { formatearFechaHora } from "@/utiles/fecha";
 
 export default function Clientes() {
-  const cerrarSesion = useSesion((s) => s.cerrarSesion);
-
   const [clientes, setClientes] = useState<ClienteDelLocal[]>([]);
   const [busqueda, setBusqueda] = useState("");
   const [cargando, setCargando] = useState(true);
@@ -59,6 +57,24 @@ export default function Clientes() {
     await cargar();
     setRefrescando(false);
   };
+
+  // TIEMPO REAL: si otro barista registra una visita desde el escáner o
+  // desde otro dispositivo, esta lista se reordena sola. Sin esto, cada
+  // equipo del local vería su propia versión de la realidad.
+  const enVivo = useEvento("visita.registrada", () => {
+    void cargar();
+  });
+  useEvento("visita.anulada", () => {
+    void cargar();
+  });
+
+  // El aviso se borra solo a los cuatro segundos. El temporizador se
+  // cancela si llega otro aviso antes, o la pantalla se desmonta.
+  useEffect(() => {
+    if (!aviso) return;
+    const t = setTimeout(() => setAviso(null), 4000);
+    return () => clearTimeout(t);
+  }, [aviso]);
 
   // useMemo evita recalcular el filtro en cada render; solo cuando
   // cambia la lista o lo que se escribió en el buscador.
@@ -146,11 +162,6 @@ export default function Clientes() {
     }
   };
 
-  const manejarCerrarSesion = async () => {
-    await cerrarSesion();
-    router.replace("/login");
-  };
-
   if (cargando) {
     return (
       <View style={styles.centro}>
@@ -165,16 +176,15 @@ export default function Clientes() {
         <View style={styles.flexible}>
           <Text style={styles.titulo}>Clientes</Text>
           <Text style={styles.suave}>
-            {clientes.length} registrados en el local
+            {clientes.length} en el local · por visita más reciente
           </Text>
         </View>
-        <Pressable
-          onPress={manejarCerrarSesion}
-          hitSlop={8}
-          accessibilityRole="button"
-        >
-          <Text style={styles.enlace}>Cerrar sesión</Text>
-        </Pressable>
+        {enVivo && (
+          <View style={styles.enVivo}>
+            <View style={styles.puntoVivo} />
+            <Text style={styles.textoVivo}>En vivo</Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.bloqueBusqueda}>
@@ -236,6 +246,12 @@ export default function Clientes() {
                 {item.totalVisitas}{" "}
                 {item.totalVisitas === 1 ? "visita" : "visitas"}
                 {item.productoFavorito ? ` · ${item.productoFavorito}` : ""}
+              </Text>
+
+              <Text style={styles.suave}>
+                {item.ultimaVisitaEn
+                  ? `Última: ${formatearFechaHora(item.ultimaVisitaEn)}`
+                  : "Todavía no ha venido"}
               </Text>
 
               <View style={styles.acciones}>
@@ -316,11 +332,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: colores.espresso,
   },
-  enlace: {
-    fontSize: texto.etiqueta,
-    color: colores.ambar,
-    fontWeight: "bold",
+  enVivo: { flexDirection: "row", alignItems: "center", gap: espacio.xs },
+  puntoVivo: {
+    width: 7,
+    height: 7,
+    borderRadius: radio.completo,
+    backgroundColor: colores.salvia,
   },
+  textoVivo: { fontSize: texto.pie, color: colores.salvia },
 
   bloqueBusqueda: { paddingHorizontal: espacio.xl, paddingTop: espacio.md },
   input: {

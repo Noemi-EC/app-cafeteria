@@ -33,3 +33,19 @@ export async function registro(
 
   return respuesta.data.data;
 }
+
+// Datos de la cuenta que tiene la sesión abierta. El id sale del token,
+// así que no hay forma de pedir la cuenta de otra persona.
+export interface CuentaActual {
+  id: string;
+  contacto: string;
+  rol: Rol;
+  activo: boolean;
+  creadoEn: string;
+  local: { id: string; nombre: string } | null;
+}
+
+export async function obtenerCuenta(): Promise<CuentaActual> {
+  const respuesta = await cliente.get<RespuestaApi<CuentaActual>>("/auth/yo");
+  return respuesta.data.data;
+}
