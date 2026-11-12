@@ -33,7 +33,13 @@
           "imageWidth": 76
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Café Link usa la cámara únicamente para leer el código del cliente y registrar su visita."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
