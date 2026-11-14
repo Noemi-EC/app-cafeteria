@@ -13,6 +13,15 @@ export default function BaristaLayout() {
       }}
     >
       <Tabs.Screen
+        name="resumen"
+        options={{
+          title: "Resumen",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="stats-chart-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="clientes"
         options={{
           title: "Clientes",
