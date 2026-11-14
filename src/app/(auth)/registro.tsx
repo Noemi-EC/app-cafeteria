@@ -1,3 +1,4 @@
+import { PRODUCTOS } from "@/constantes/productos";
 import { rutaPorRol } from "@/auth/rutas";
 import { useSesion } from "@/store/sesion";
 import {
@@ -22,14 +23,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const PRODUCTOS = [
-  "Flat White",
-  "Americano",
-  "Cappuccino",
-  "Latte",
-  "Espresso",
-];
-
 export default function Register() {
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,10 +35,24 @@ export default function Register() {
 
   const manejarRegistro = async () => {
     setError(null);
+
+    if (!nombre.trim()) {
+      setError("Escribe cómo te llamamos");
+      return;
+    }
+    if (!contacto.trim()) {
+      setError("Escribe tu correo o número");
+      return;
+    }
+    if (password.length < 6) {
+      setError("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+
     setCargando(true);
 
     try {
-      await registrar(nombre, contacto, password);
+      await registrar(nombre.trim(), contacto.trim(), password);
       router.replace(rutaPorRol(useSesion.getState().rol));
     } catch (e) {
       setError(
@@ -104,7 +111,7 @@ export default function Register() {
                 <Text style={styles.etiqueta}>CONTRASEÑA</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="Mínimo 8 caracteres"
+                  placeholder="Mínimo 6 caracteres"
                   autoCapitalize="none"
                   autoCorrect={false}
                   secureTextEntry
