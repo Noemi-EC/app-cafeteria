@@ -34,10 +34,22 @@ export default function Login() {
 
   const manejarLogin = async () => {
     setError(null);
+
+    // Validación en la app: si falta algo, ni se molesta al servidor.
+    // Las mismas reglas se repiten allá, porque la app no es de fiar.
+    if (!contact.trim()) {
+      setError("Escribe tu correo o número");
+      return;
+    }
+    if (!password) {
+      setError("Escribe tu contraseña");
+      return;
+    }
+
     setCargando(true);
 
     try {
-      await iniciarSesion(contact, password);
+      await iniciarSesion(contact.trim(), password);
       const rol = useSesion.getState().rol;
       router.replace(rutaPorRol(rol)); // No deja rastro en pila, lo que sí hace push, dejando una pantalla sobre otra
     } catch (e) {
@@ -116,6 +128,10 @@ export default function Login() {
 
           {/* Renderizado condicional */}
           {error && <Text style={styles.textError}>{error}</Text>}
+
+          <Link href="/recuperar">
+            <Text style={styles.textForgot}>¿Olvidaste tu contraseña?</Text>
+          </Link>
 
           <View style={styles.questionContainer}>
             <Text style={styles.question}>¿Primera vez?</Text>
@@ -229,6 +245,12 @@ const styles = StyleSheet.create({
   textProfile: {
     fontWeight: "bold",
     color: colores.suave,
+  },
+  textForgot: {
+    color: colores.suave,
+    fontSize: texto.etiqueta,
+    textAlign: "center",
+    marginBottom: espacio.md,
   },
   textError: {
     color: colores.blanco,

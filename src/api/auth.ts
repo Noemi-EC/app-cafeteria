@@ -49,3 +49,25 @@ export async function obtenerCuenta(): Promise<CuentaActual> {
   const respuesta = await cliente.get<RespuestaApi<CuentaActual>>("/auth/yo");
   return respuesta.data.data;
 }
+
+/** Paso 1 de la recuperación: pedir el código al contacto registrado. */
+export async function pedirCodigo(contacto: string): Promise<string> {
+  const respuesta = await cliente.post<RespuestaApi<{ mensaje: string }>>(
+    "/auth/recuperar",
+    { contacto },
+  );
+  return respuesta.data.data.mensaje;
+}
+
+/** Paso 2: canjear el código por una contraseña nueva. */
+export async function restablecerPassword(datos: {
+  contacto: string;
+  codigo: string;
+  passwordNueva: string;
+}): Promise<{ actualizada: boolean }> {
+  const respuesta = await cliente.post<RespuestaApi<{ actualizada: boolean }>>(
+    "/auth/restablecer",
+    datos,
+  );
+  return respuesta.data.data;
+}
